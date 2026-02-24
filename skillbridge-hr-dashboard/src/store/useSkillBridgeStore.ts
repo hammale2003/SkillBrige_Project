@@ -25,7 +25,12 @@ export interface Formation {
   priority: 'Prioritaire' | 'Important' | 'Utile';
   importance?: number;
   competences?: string[];
+  competences_cibles?: string[];
   year?: number;
+  // Agent 6 enriched fields
+  url?: string;
+  platform?: string;
+  description?: string;
 }
 
 export interface Employee {
@@ -56,6 +61,8 @@ interface SkillBridgeState {
   employees: Employee[];
   currentEmployeeId: string | null;
   processingLogs: LogEntry[];
+  loadingPopup: 'generating' | 'evaluating' | 'suggesting' | null;
+  recommendedFormations: Formation[];
 
   setEmployeeJson: (json: string) => void;
   setTestBlueprint: (bp: string) => void;
@@ -69,6 +76,8 @@ interface SkillBridgeState {
   addLog: (text: string, done?: boolean) => void;
   markLastLogDone: () => void;
   clearLogs: () => void;
+  setLoadingPopup: (phase: 'generating' | 'evaluating' | 'suggesting' | null) => void;
+  setRecommendedFormations: (formations: Formation[]) => void;
 }
 
 /** Normalize backend JSON (snake_case fields) into the store Employee shape */
@@ -123,6 +132,8 @@ export const useSkillBridgeStore = create<SkillBridgeState>((set, get) => ({
   employees: getStoredEmployees(),
   currentEmployeeId: null,
   processingLogs: [],
+  loadingPopup: null,
+  recommendedFormations: [],
 
   setEmployeeJson: (json) => set({ employeeJson: json }),
   setTestBlueprint: (bp) => set({ testBlueprint: bp }),
@@ -138,6 +149,8 @@ export const useSkillBridgeStore = create<SkillBridgeState>((set, get) => ({
       ),
     })),
   clearLogs: () => set({ processingLogs: [] }),
+  setLoadingPopup: (phase) => set({ loadingPopup: phase }),
+  setRecommendedFormations: (formations) => set({ recommendedFormations: formations }),
   addEmployee: (emp) => {
     const employees = [...get().employees.filter(e => e.id !== emp.id), emp];
     localStorage.setItem('skillbridge_employees', JSON.stringify(employees));

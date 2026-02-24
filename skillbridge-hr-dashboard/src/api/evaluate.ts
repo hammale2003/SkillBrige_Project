@@ -33,3 +33,17 @@ export async function evaluateEmployee(req: EvaluateRequest): Promise<EvaluateRe
 
   return data;
 }
+
+export async function recommendFormations(finalOutputJson: string): Promise<{ formations: any[] }> {
+  const res = await fetch(`${BASE_URL}/api/recommend`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ final_output_json: finalOutputJson }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Erreur Agent 6: ${res.status}`);
+  }
+
+  return res.json();
+}

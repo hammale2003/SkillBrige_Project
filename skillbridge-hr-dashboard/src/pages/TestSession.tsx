@@ -7,7 +7,7 @@ import CompetenceTestCard from '@/components/test-session/CompetenceTestCard';
 import SubmitBar from '@/components/test-session/SubmitBar';
 import ConfirmModal from '@/components/test-session/ConfirmModal';
 import { useSkillBridgeStore, normalizeToEmployee } from '@/store/useSkillBridgeStore';
-import { evaluateEmployee } from '@/api/evaluate';
+import { evaluateEmployee, recommendFormations } from '@/api/evaluate';
 
 interface TestData {
   selectedOption: string; // "A" | "B" | "C" | "D" | ""
@@ -19,7 +19,8 @@ const getCid = (c: any): string => c.competence_id || c.id || '';
 export default function TestSession() {
   const navigate = useNavigate();
   const { employeeJson, testBlueprint, setFinalOutput, setAgentStep, setMode,
-          addLog, markLastLogDone, clearLogs, addEmployee } = useSkillBridgeStore();
+          addLog, markLastLogDone, clearLogs, addEmployee,
+          setLoadingPopup, setRecommendedFormations } = useSkillBridgeStore();
 
   const [employee, setEmployee] = useState<any>(null);
   const [competences, setCompetences] = useState<any[]>([]);
@@ -70,6 +71,7 @@ export default function TestSession() {
 
     try {
       setAgentStep(0);
+      setLoadingPopup('evaluating');
       navigate('/evaluation');
 
       // Simulate steps with logs
@@ -94,9 +96,22 @@ export default function TestSession() {
         // Auto-save normalized employee to dashboard
         addEmployee(normalizeToEmployee(parsed));
         addLog('Évaluation terminée — résultats disponibles', true);
+
+        // --- Agent 6: search for real training courses ---
+        setLoadingPopup('suggesting');
+        try {
+          const recResult = await recommendFormations(response.final_output);
+          setRecommendedFormations(recResult.formations ?? []);
+        } catch {
+          // Agent 6 failure is non-blocking
+        }
+        setLoadingPopup(null);
+      } else {
+        setLoadingPopup(null);
       }
       toast.success('Évaluation terminée');
     } catch (err: any) {
+      setLoadingPopup(null);
       toast.error(err.message || 'Erreur de connexion au serveur');
     }
   };

@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from agent.graph import graph
+from agent.nodes.agent6_formation_recommender import recommend_formations
 
 app = FastAPI(title="SkillBridge API", version="1.0.0")
 
@@ -37,6 +38,14 @@ class EvaluateResponse(BaseModel):
     test_blueprint: str = ""
     analysis: str = ""
     enriched_employee_json: str = ""
+
+
+class RecommendRequest(BaseModel):
+    final_output_json: str
+
+
+class RecommendResponse(BaseModel):
+    formations: list = []
 
 
 # --------------------------------------------------------------------------- #
@@ -147,6 +156,16 @@ async def evaluate(req: EvaluateRequest) -> EvaluateResponse:
 async def health() -> dict:
     """Simple health-check used by the frontend to verify the server is up."""
     return {"status": "ok", "service": "SkillBridge"}
+
+
+@app.post("/api/recommend", response_model=RecommendResponse)
+async def recommend(req: RecommendRequest) -> RecommendResponse:
+    """Run Agent 6 — search for real training courses matching the employee's skill gaps."""
+    try:
+        formations = await recommend_formations(req.final_output_json)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    return RecommendResponse(formations=formations)
 
 
 # --------------------------------------------------------------------------- #

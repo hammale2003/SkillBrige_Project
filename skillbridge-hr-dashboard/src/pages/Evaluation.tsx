@@ -20,6 +20,8 @@ export default function Evaluation() {
     agentStep, setAgentStep, finalOutput, setFinalOutput,
     setTestBlueprint, addEmployee,
     processingLogs, addLog, markLastLogDone, clearLogs,
+    loadingPopup, setLoadingPopup,
+    recommendedFormations,
   } = useSkillBridgeStore();
 
   const [loading, setLoading] = useState(false);
@@ -47,6 +49,7 @@ export default function Evaluation() {
     setFinalOutput(null);
     clearLogs();
     setMode('generate_tests');
+    setLoadingPopup('generating');
 
     const stepLogs = [
       'Agent 1 — Analyse du profil et des compétences...',
@@ -79,9 +82,11 @@ export default function Evaluation() {
       if (response.enriched_employee_json) {
         setEmployeeJson(response.enriched_employee_json);
       }
+      setLoadingPopup(null);
       toast.success('Questions générées avec succès');
       navigate('/test-session');
     } catch (err: any) {
+      setLoadingPopup(null);
       toast.error(err.message || 'Erreur de connexion au serveur');
       setAgentStep(0);
     } finally {
@@ -155,7 +160,10 @@ export default function Evaluation() {
 
             {/* Formations */}
             {displayResult.formations_recommandees && (
-              <FormationsRecommandees formations={displayResult.formations_recommandees} />
+              <FormationsRecommandees
+                formations={displayResult.formations_recommandees}
+                recommendedFormations={recommendedFormations}
+              />
             )}
 
             {/* Action buttons */}
