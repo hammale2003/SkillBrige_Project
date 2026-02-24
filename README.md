@@ -1,8 +1,5 @@
 # SkillBridge — Multi-Agent Competency Evaluation System
 
-[![CI](https://github.com/hammale2003/SkillBrige_Project/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/hammale2003/SkillBrige_Project/actions/workflows/unit-tests.yml)
-[![Integration Tests](https://github.com/hammale2003/SkillBrige_Project/actions/workflows/integration-tests.yml/badge.svg)](https://github.com/hammale2003/SkillBrige_Project/actions/workflows/integration-tests.yml)
-
 **SkillBridge** is a structured multi-agent AI system that evaluates employee competencies through dynamically generated QCM tests. Built on [LangGraph](https://github.com/langchain-ai/langgraph) with Google Gemini 3 Pro Preview, it orchestrates 5 specialized AI agents to analyze profiles, generate tests, score answers, validate consistency, and produce structured JSON evaluations.
 
 ---
