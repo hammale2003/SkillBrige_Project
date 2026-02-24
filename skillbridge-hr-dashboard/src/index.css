@@ -1,0 +1,142 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 216 47% 97%;
+    --foreground: 240 29% 14%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 29% 14%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 29% 14%;
+
+    --primary: 216 100% 26%;
+    --primary-foreground: 0 0% 100%;
+
+    --primary-mid: 211 100% 36%;
+    --primary-light: 197 100% 44%;
+
+    --secondary: 213 43% 92%;
+    --secondary-foreground: 240 29% 14%;
+
+    --muted: 216 47% 97%;
+    --muted-foreground: 220 18% 51%;
+
+    --accent: 213 60% 95%;
+    --accent-foreground: 211 100% 36%;
+
+    --destructive: 1 77% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 161 100% 39%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 42 100% 50%;
+    --warning-foreground: 240 29% 14%;
+
+    --border: 213 43% 92%;
+    --input: 213 43% 92%;
+    --ring: 211 100% 36%;
+
+    --radius: 0.75rem;
+
+    --sidebar-bg-from: 220 100% 18%;
+    --sidebar-bg-to: 216 100% 26%;
+
+    --level-0: 1 77% 55%;
+    --level-1: 14 100% 57%;
+    --level-2: 42 100% 50%;
+    --level-3: 50 98% 60%;
+    --level-4: 123 38% 57%;
+    --level-5: 161 100% 39%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer utilities {
+  .gradient-primary {
+    background: linear-gradient(135deg, hsl(216 100% 26%), hsl(211 100% 36%));
+  }
+
+  .gradient-sidebar {
+    background: linear-gradient(180deg, hsl(220 100% 18%) 0%, hsl(216 100% 26%) 100%);
+  }
+
+  .gradient-header-wash {
+    background: linear-gradient(135deg, hsl(216 60% 97%) 0%, hsl(0 0% 100%) 100%);
+  }
+
+  .gradient-stepper {
+    background: linear-gradient(90deg, hsl(216 100% 26%), hsl(197 100% 44%));
+  }
+
+  .card-shadow {
+    box-shadow: 0 2px 12px hsla(211, 100%, 36%, 0.08);
+  }
+
+  .card-shadow-hover {
+    box-shadow: 0 8px 24px hsla(211, 100%, 36%, 0.15);
+  }
+
+  .modal-backdrop {
+    background: hsla(220, 100%, 18%, 0.4);
+    backdrop-filter: blur(4px);
+  }
+}
+
+@layer components {
+  .btn-gradient {
+    @apply gradient-primary text-white font-medium rounded-lg px-5 py-2.5 transition-all duration-150;
+  }
+  .btn-gradient:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+  }
+  .btn-gradient:disabled {
+    @apply opacity-50 cursor-not-allowed;
+    filter: none;
+    transform: none;
+  }
+
+  .btn-outline-blue {
+    @apply bg-transparent font-medium rounded-lg px-5 py-2.5 transition-all duration-150;
+    border: 2px solid hsl(211 100% 36%);
+    color: hsl(211 100% 36%);
+  }
+  .btn-outline-blue:hover {
+    background: hsl(211 100% 36% / 0.06);
+  }
+
+  .input-styled {
+    @apply w-full rounded-lg px-3 py-2.5 text-sm bg-card text-foreground outline-none transition-all;
+    border: 1.5px solid hsl(213 43% 92%);
+  }
+  .input-styled:focus {
+    border-color: hsl(197 100% 44%);
+    box-shadow: 0 0 0 3px hsl(197 100% 44% / 0.15);
+  }
+
+  .employee-card {
+    @apply bg-card rounded-xl card-shadow border border-border p-5 transition-all duration-200 cursor-pointer;
+  }
+  .employee-card:hover {
+    @apply card-shadow-hover;
+    transform: translateY(-3px);
+    border-left: 3px solid hsl(197 100% 44%);
+  }
+}
