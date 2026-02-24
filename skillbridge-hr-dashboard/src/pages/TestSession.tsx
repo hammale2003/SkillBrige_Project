@@ -18,8 +18,8 @@ const getCid = (c: any): string => c.competence_id || c.id || '';
 
 export default function TestSession() {
   const navigate = useNavigate();
-  const { employeeJson, testBlueprint, setFinalOutput, setAgentStep, setMode,
-          addLog, markLastLogDone, clearLogs, addEmployee,
+  const { employeeJson, setFinalOutput, setMode,
+          addEmployee,
           setLoadingPopup, setRecommendedFormations } = useSkillBridgeStore();
 
   const [employee, setEmployee] = useState<any>(null);
@@ -51,37 +51,18 @@ export default function TestSession() {
   const handleSubmit = async () => {
     setConfirmOpen(false);
     setMode('evaluate');
-    clearLogs();
-
-    const evalLogs = [
-      'Agent 1 — Re-analyse du profil...',
-      'Agent 3 — Scoring avec les réponses réelles...',
-      'Agent 4 — Validation de la cohérence...',
-      'Agent 5 — Construction de la sortie JSON...',
-    ];
 
     const scores: Record<string, number> = {};
     competences.forEach((c: any) => {
       const cid = getCid(c);
       const selected = testData[cid]?.selectedOption || '';
       const correct = (c.correct_answer || '').toUpperCase();
-      // 20 for correct answer, 0 for wrong/unanswered
       scores[cid] = selected && correct && selected === correct ? 20 : 0;
     });
 
     try {
-      setAgentStep(0);
-      setLoadingPopup('evaluating');
+      setLoadingPopup('evaluating'); // stays open until real API response
       navigate('/evaluation');
-
-      // Simulate steps with logs
-      for (let i = 0; i < evalLogs.length; i++) {
-        addLog(evalLogs[i]);
-        await new Promise((r) => setTimeout(r, 600));
-        setAgentStep(i + 1);
-        markLastLogDone();
-      }
-      setAgentStep(5);
 
       const response = await evaluateEmployee({
         employee_json: employeeJson,
@@ -89,15 +70,12 @@ export default function TestSession() {
         test_scores: scores,
       });
 
-      setAgentStep(5);
       if (response.final_output) {
         const parsed = JSON.parse(response.final_output);
         setFinalOutput(parsed);
-        // Auto-save normalized employee to dashboard
         addEmployee(normalizeToEmployee(parsed));
-        addLog('Évaluation terminée — résultats disponibles', true);
 
-        // --- Agent 6: search for real training courses ---
+        // Agent 6: search for real training courses
         setLoadingPopup('suggesting');
         try {
           const recResult = await recommendFormations(response.final_output);
@@ -105,10 +83,8 @@ export default function TestSession() {
         } catch {
           // Agent 6 failure is non-blocking
         }
-        setLoadingPopup(null);
-      } else {
-        setLoadingPopup(null);
       }
+      setLoadingPopup(null);
       toast.success('Évaluation terminée');
     } catch (err: any) {
       setLoadingPopup(null);

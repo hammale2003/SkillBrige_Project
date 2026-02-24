@@ -112,7 +112,7 @@ GOOGLE_API_KEY=your_google_api_key_here
 ### 3. Run the API server
 
 ```bash
-uv run uvicorn src.agent.server:app --reload --port 8000
+uv run uvicorn agent.server:app --reload --port 8000
 ```
 
 The server will be available at `http://localhost:8000`.

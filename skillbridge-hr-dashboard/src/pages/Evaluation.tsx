@@ -5,10 +5,8 @@ import Sidebar from '@/components/layout/Sidebar';
 import TopBar from '@/components/layout/TopBar';
 import EmployeeHeader from '@/components/evaluation/EmployeeHeader';
 import ModeSelector from '@/components/evaluation/ModeSelector';
-import AgentStepper from '@/components/evaluation/AgentStepper';
 import CompetenceResultCard from '@/components/evaluation/CompetenceResultCard';
 import FormationsRecommandees from '@/components/evaluation/FormationsRecommandees';
-import ProcessingLog from '@/components/evaluation/ProcessingLog';
 import { useSkillBridgeStore, Employee, normalizeToEmployee } from '@/store/useSkillBridgeStore';
 import { evaluateEmployee } from '@/api/evaluate';
 import { Download, Save } from 'lucide-react';
@@ -17,10 +15,10 @@ export default function Evaluation() {
   const navigate = useNavigate();
   const {
     employeeJson, setEmployeeJson, setMode,
-    agentStep, setAgentStep, finalOutput, setFinalOutput,
+    setFinalOutput, finalOutput,
     setTestBlueprint, addEmployee,
-    processingLogs, addLog, markLastLogDone, clearLogs,
-    loadingPopup, setLoadingPopup,
+    setLoadingPopup,
+
     recommendedFormations,
   } = useSkillBridgeStore();
 
@@ -29,7 +27,6 @@ export default function Evaluation() {
   const [exportLabel, setExportLabel] = useState('Exporter JSON');
   const [saveLabel, setSaveLabel] = useState('Sauvegarder');
 
-  // displayResult is either freshly set (simulate) or returned from TestSession
   const displayResult = finalOutput;
 
   useEffect(() => {
@@ -45,38 +42,15 @@ export default function Evaluation() {
   const handleLaunch = async () => {
     if (!employeeJson) return;
     setLoading(true);
-    setAgentStep(0);
     setFinalOutput(null);
-    clearLogs();
     setMode('generate_tests');
-    setLoadingPopup('generating');
-
-    const stepLogs = [
-      'Agent 1 — Analyse du profil et des compétences...',
-      'Agent 2 — Génération des questions QCM...',
-      'Agent 3 — Préparation du scoring...',
-      'Agent 4 — Validation de la cohérence...',
-      'Agent 5 — Finalisation de la sortie...',
-    ];
+    setLoadingPopup('generating'); // stays open until real API response
 
     try {
-      // Start stepper animation with live logs
-      const stepsPromise = (async () => {
-        for (let i = 1; i <= 5; i++) {
-          addLog(stepLogs[i - 1]);
-          await new Promise((r) => setTimeout(r, 600));
-          setAgentStep(i);
-          markLastLogDone();
-        }
-      })();
-
       const response = await evaluateEmployee({
         employee_json: employeeJson,
         mode: 'generate_tests',
       });
-
-      await stepsPromise;
-      addLog('Questions générées — redirection vers la session de test...', true);
 
       setTestBlueprint(response.test_blueprint || '');
       if (response.enriched_employee_json) {
@@ -88,7 +62,6 @@ export default function Evaluation() {
     } catch (err: any) {
       setLoadingPopup(null);
       toast.error(err.message || 'Erreur de connexion au serveur');
-      setAgentStep(0);
     } finally {
       setLoading(false);
     }
@@ -143,9 +116,6 @@ export default function Evaluation() {
         <TopBar title="Évaluation" />
         <EmployeeHeader employee={employee} />
         <ModeSelector onLaunch={handleLaunch} loading={loading} />
-
-        {agentStep > 0 && <AgentStepper currentStep={agentStep} />}
-        {processingLogs.length > 0 && <ProcessingLog logs={processingLogs} />}
 
         {displayResult && (
           <div className="animate-fade-in space-y-6">

@@ -26,7 +26,8 @@ import os
 import re
 from typing import Any
 
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -90,7 +91,7 @@ def _build_prompt(final_output_json: str) -> str:
 
 
 def _extract_grounding_urls(response: Any) -> dict[str, str]:
-    """Extract web URL → title mapping from Gemini grounding metadata."""
+    """Extract web URL → title mapping from Gemini grounding metadata (google-genai SDK)."""
     url_map: dict[str, str] = {}
     try:
         candidate = response.candidates[0]
@@ -141,21 +142,25 @@ def _merge_grounding_urls(formations: list[dict], url_map: dict[str, str]) -> li
 async def recommend_formations(final_output_json: str) -> list[dict]:
     """Call Gemini with Google Search grounding and return formation list."""
     api_key = os.getenv("GOOGLE_API_KEY", "")
-    genai.configure(api_key=api_key)
-
-    model = genai.GenerativeModel(
-        model_name="gemini-3-pro-preview",
-        system_instruction=SYSTEM_PROMPT,
-        tools=[{"google_search_retrieval": {}}],
-    )
+    client = genai.Client(api_key=api_key)
 
     prompt = _build_prompt(final_output_json)
+
+    config = types.GenerateContentConfig(
+        system_instruction=SYSTEM_PROMPT,
+        tools=[types.Tool(google_search=types.GoogleSearch())],
+        temperature=0.2,
+    )
 
     # Run the sync SDK call in a thread pool to keep FastAPI async
     loop = asyncio.get_event_loop()
     response = await loop.run_in_executor(
         None,
-        lambda: model.generate_content(prompt),
+        lambda: client.models.generate_content(
+            model="gemini-3-pro-preview",
+            contents=prompt,
+            config=config,
+        ),
     )
 
     raw_text = response.text or ""
@@ -164,7 +169,6 @@ async def recommend_formations(final_output_json: str) -> list[dict]:
     try:
         formations: list[dict] = json.loads(_clean_text(raw_text))
     except json.JSONDecodeError:
-        # Fallback: return empty list rather than crashing
         formations = []
 
     formations = _merge_grounding_urls(formations, url_map)

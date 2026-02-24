@@ -12,6 +12,7 @@ version = "0.0.1"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
+    { name = "google-genai" },
     { name = "langchain-google-genai" },
     { name = "langgraph" },
     { name = "python-dotenv" },
@@ -36,6 +37,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "fastapi", specifier = ">=0.115.0" },
+    { name = "google-genai", specifier = ">=1.64.0" },
     { name = "langchain-google-genai", specifier = ">=2.0.0" },
     { name = "langgraph", specifier = ">=1.0.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.11.1" },
