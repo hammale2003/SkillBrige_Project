@@ -143,9 +143,8 @@ async def recommend_formations(final_output_json: str) -> list[dict]:
     api_key = os.getenv("GOOGLE_API_KEY", "")
     genai.configure(api_key=api_key)
 
-    # Use gemini-2.0-flash which supports Google Search grounding reliably
     model = genai.GenerativeModel(
-        model_name="gemini-2.0-flash",
+        model_name="gemini-3-pro-preview",
         system_instruction=SYSTEM_PROMPT,
         tools=[{"google_search_retrieval": {}}],
     )
