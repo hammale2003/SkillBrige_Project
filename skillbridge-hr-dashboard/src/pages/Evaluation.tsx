@@ -129,9 +129,9 @@ export default function Evaluation() {
             )}
 
             {/* Formations */}
-            {displayResult.formations_recommandees && (
+            {(displayResult.formations_recommandees?.length > 0 || recommendedFormations.length > 0) && (
               <FormationsRecommandees
-                formations={displayResult.formations_recommandees}
+                formations={displayResult.formations_recommandees ?? []}
                 recommendedFormations={recommendedFormations}
               />
             )}
