@@ -112,7 +112,11 @@ GOOGLE_API_KEY=your_google_api_key_here
 ### 3. Run the API server
 
 ```bash
-uv run uvicorn agent.server:app --reload --port 8000
+$env:PYTHONPATH = "C:\path\to\SkillBrige_Project\src"   # Windows PowerShell
+# OR
+export PYTHONPATH=./src                                   # Linux / macOS / Git Bash
+
+uv run python -m uvicorn agent.server:app --port 8000 --log-level info
 ```
 
 The server will be available at `http://localhost:8000`.
